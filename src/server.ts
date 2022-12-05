@@ -4,8 +4,9 @@ const port = process.env.PORT || 4000;
 
 export const app = new App();
 
-app.init().then(()=> {
-    app.server.listen(port, ()=> {
-        console.log(`Server running on port ${port}`);
-    })
-})
+app.init().then(() => {
+  app.server.listen(port, () => {
+    // eslint-disable-next-line no-console
+    console.log(`Server running on port ${port}`);
+  });
+});

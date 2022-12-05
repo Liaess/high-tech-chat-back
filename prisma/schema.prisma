@@ -11,10 +11,24 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String
-  password String
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(255)
+  email String @unique @db.VarChar(255)
+  password String @db.VarChar(255)
+
+  user Friend[] @relation(name: "user")
+  friend Friend[] @relation(name: "friend")
 
   @@map("users")
+}
+
+model Friend {
+  id  Int    @id @default(autoincrement())
+  user_id Int
+  friend_id Int
+
+  user User @relation(name: "user", fields: [user_id], references: [id])
+  friend User @relation(name: "friend", fields: [friend_id], references: [id])
+
+  @@map("friend_list")
 }
