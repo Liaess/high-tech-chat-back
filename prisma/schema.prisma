@@ -11,10 +11,83 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String
-  password String
+  id       Int    @id @default(autoincrement())
+  name     String @db.VarChar(255)
+  email    String @unique @db.VarChar(255)
+  password String @db.VarChar(255)
+
+  user    Friend[]     @relation(name: "user")
+  friend  Friend[]     @relation(name: "friend")
+  owner   Server[]
+  servers UserServer[]
 
   @@map("users")
+}
+
+model Friend {
+  user_id   Int
+  friend_id Int
+
+  user   User @relation(name: "user", fields: [user_id], references: [id])
+  friend User @relation(name: "friend", fields: [friend_id], references: [id])
+
+  @@id([user_id, friend_id])
+  @@unique([user_id, friend_id])
+  @@map("friend_list")
+}
+
+model Server {
+  id       Int    @id @default(autoincrement())
+  owner_id Int
+  name     String @db.VarChar(255)
+
+  owner    User         @relation(fields: [owner_id], references: [id])
+  users    UserServer[]
+  channels Channel[]
+
+  @@map("servers")
+}
+
+model UserServer {
+  user_id   Int
+  server_id Int
+
+  user   User   @relation(fields: [user_id], references: [id])
+  server Server @relation(fields: [server_id], references: [id])
+
+  @@id([user_id, server_id])
+  @@unique([user_id, server_id])
+  @@map("users_servers")
+}
+
+model Channel {
+  id        Int    @id @default(autoincrement())
+  name      String @db.VarChar(255)
+  server_id Int
+
+  server   Server           @relation(fields: [server_id], references: [id])
+  messages ChannelMessage[]
+
+  @@map("channels")
+}
+
+model ChannelMessage {
+  channel_id Int
+  message_id Int
+
+  channel Channel @relation(fields: [channel_id], references: [id])
+  message Message @relation(fields: [message_id], references: [id])
+
+  @@id([channel_id, message_id])
+  @@unique([channel_id, message_id])
+  @@map("channel_messages")
+}
+
+model Message {
+  id      Int    @id @default(autoincrement())
+  content String @db.Text
+
+  channels ChannelMessage[]
+
+  @@map("messages")
 }
